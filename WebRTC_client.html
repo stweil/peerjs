@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head><title>WebRTC Client</title></head>
+  <body>
+    <h2>WebRTC Client</h2>
+    <video autoplay id="video"></video>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        var client_id = 'client';
+        var peer = new Peer(client_id, {host: 'localhost', port: 9000, path: '/', config: {}, debug: 3});
+        
+        peer.on('call', function(call) {
+            console.log('Answering call...');
+            call.answer();
+            call.on('stream', function(stream) {
+                console.log('Received stream, setting video source...');
+                var video = document.getElementById('video');
+                video.srcObject = stream;
+                video.onloadedmetadata = function() {
+                    console.log('Playing video...');
+                    video.play();
+                }
+                video.onplay = function() {
+                    console.log('Video is playing');
+                }
+                video.onerror = function(e) {
+                    console.log('Video error:', e);
+                }
+            });
+        });
+        peer.on('error', function(err) {
+            console.log('Peer error:', err);
+        });
+        peer.on('data', function(data) {
+            console.log('Peer data:', data);
+        });
+        peer.on('open', function(id) {
+            console.log('Peer open: peer ID is', id);
+        });
+        peer.on('close', function(id) {
+            console.log('Peer close: peer ID is', id);
+        });
+    </script>
+  </body>
+</html>

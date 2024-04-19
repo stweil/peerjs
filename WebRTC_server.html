@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head><title>WebRTC Server</title></head>
+  <body>
+    <h2>WebRTC Server</h2>
+    <button id="shareScreen">Share Screen</button>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="config.js"></script>
+    <script>
+        var client_id = 'client';
+        var server_id = 'server';
+        var peer = new Peer(server_id, {host: 'localhost', port: 9000, path: '/', debug: 3});
+
+        document.getElementById("shareScreen").addEventListener("click", function() {
+            console.log('Sharing screen...');
+            navigator.mediaDevices.getDisplayMedia({
+                video: {cursor: "always"}
+            }).then(function(stream) {
+                peer.on('open', function(id) {
+                    console.log('My peer ID is: ' + id);
+                    console.log('Calling peer:', client_id);
+                    peer.call(client_id, stream);
+                });
+                peer.on('error', function(err) {
+                    console.log('Peer error:', err);
+                });
+            }).catch(function(err) {
+                console.log('Error obtaining screen stream:', err);
+            });
+        });
+    </script>
+  </body>
+</html>
